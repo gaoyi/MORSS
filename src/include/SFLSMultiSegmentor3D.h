@@ -16,12 +16,9 @@ class SFLSMultiSegmentor3D_c
 public:
 
   typedef SFLSMultiSegmentor3D_c< TPixel > Self;
-  //typedef boost::shared_ptr< Self > Pointer;
-
 
   typedef CSFLS::NodeType NodeType;
   typedef CSFLS::CSFLSLayer CSFLSLayer;
-  
 
   typedef itk::Image<TPixel, 3> TImage;
   typedef itk::Image<float, 3> TFloatImage;
@@ -33,11 +30,7 @@ public:
   typedef TImage ImageType;
   typedef TFloatImage LSImageType;
 
-  // This label is used internally for SFLS indicating -3~3. So char
-  // is enough. This is not for the label map user provided for
-  // multiple objects. There char may not be enough. So we call this
-  // type as "LabelImage" and call the user input label as "Label Map"
-  typedef TCharImage LabelImageType; 
+  typedef TCharImage LabelImageType;
 
   // This is used for user provided init label map. called "Label Map"
   // to differentiate with the "Label Image" which is used internally
@@ -51,10 +44,6 @@ public:
 
   SFLSMultiSegmentor3D_c();
   virtual ~SFLSMultiSegmentor3D_c() {}
-
-  /* New */
-  //static Pointer New() { return Pointer(new Self); }
-
 
   /* ============================================================
    * functions         */
@@ -99,7 +88,6 @@ public:
 
   /* ============================================================
    * data     */
-  // CSFLS::Pointer mp_sfls;
   typename ImageType::Pointer mp_img;
 
   std::vector< typename LSImageType::Pointer> m_phiList;

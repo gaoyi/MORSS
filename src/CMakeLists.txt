@@ -14,11 +14,11 @@ set(CMAKE_C_FLAGS -fopenmp)
 # set the environment variable ITK_DIR to the dir containing ITKConfig.cmake in .bashrc
 find_package (ITK)
 if (ITK_FOUND)
-   include(${USE_ITK_FILE})
-endif(ITK_FOUND) 
-
+  include(${ITK_USE_FILE})
+endif(ITK_FOUND)
 
 set(Libraries ${ITK_LIBRARIES})
+
 
 
 # boost

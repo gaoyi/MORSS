@@ -1,8 +1,7 @@
 #include <iostream>
 
 
-// gth818n
-#include "imageProcessing/sparseFieldLevelSetITK/SFLSMultiRobustStatSegmentor3D.h"
+#include "include/SFLSMultiRobustStatSegmentor3D.h"
 
 
 #include "itkImageFileReader.h"

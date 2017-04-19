@@ -7,7 +7,6 @@
 #include <ctime>
 
 //debug//
-#include "cArrayOp.h"
 #include <fstream>
 //DEBUG//
 
@@ -39,7 +38,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
 
 
   return;
-}  
+}
 
 
 /* ============================================================  */
@@ -51,7 +50,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
   CSFLSLayer& m_lz = this->m_sflsList[labelId].m_lz;
   std::vector< double >& forceForThisObj = this->m_forceList[labelId];
 
-  
+
   double fmax = std::numeric_limits<double>::min();
   double kappaMax = std::numeric_limits<double>::min();
 
@@ -64,7 +63,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
   {
     long iiizzz = 0;
     for (typename CSFLSLayer::iterator itz = m_lz.begin(); itz != m_lz.end(); ++itz)
-      m_lzIterVct[iiizzz++] = itz;    
+      m_lzIterVct[iiizzz++] = itz;
   }
 
 
@@ -81,7 +80,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
 
       fmaxOfThisThread.resize(nt);
       kappaMaxOfThisThread.resize(nt);
-      
+
       for (int ithread = 0; ithread < nt; ++ithread)
         {
           fmaxOfThisThread[ithread] = std::numeric_limits<double>::min();
@@ -102,14 +101,14 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
         long ix = (*itz)[0];
         long iy = (*itz)[1];
         long iz = (*itz)[2];
-          
+
         TIndex idx = {{ix, iy, iz}};
 
         kappaOnZeroLS[i] = this->computeKappa(labelId, ix, iy, iz);
 
         std::vector<double> f(m_numberOfFeature);
 #pragma omp critical
-        {        
+        {
           computeFeatureAt(idx, f);
         }
 
@@ -122,7 +121,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
         double a = -kernelEvaluationUsingPDF(labelId, f);
 
 
-        /* 
+        /*
            Then go thru all the other labelId to see if this contour
            touches the others.
 
@@ -140,7 +139,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
            If I have force -1 (this point wants to expend), at the same
            point, some other contour has force -2 (it wants to expend
            its contour too, but the force is larger). Then the force
-           here is -1 - (-2) = 1. So this point will shrink. 
+           here is -1 - (-2) = 1. So this point will shrink.
 
            But if the other force is, 2, contracting itself. Then my
            force -1 won't be changed. So, only pushing, no pulling.
@@ -162,8 +161,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
               {
                 continue;
               }
-          
-            //double thisForce = -kernelEvaluation(ilabel, f);
+
             double thisForce = -kernelEvaluationUsingPDF(ilabel, f);
 
             thisForce = thisForce<0.0?thisForce:0.0;
@@ -198,11 +196,11 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
         +  (this->m_curvatureWeightList[labelId])*kappaOnZeroLS[i]/(kappaMax + 1e-10);
     }
 
-    
+
   delete[] kappaOnZeroLS;
   delete[] cvForce;
 
-  
+
   return;
 }
 
@@ -217,7 +215,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
     {
       computeForce(i);
     }
-  
+
   return;
 }
 
@@ -341,10 +339,10 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
         {
           m_featureImageList[ifeature]->SetPixel(idx, f[ifeature]);
         }
-      
+
       m_featureComputed->SetPixel(idx, 1); // mark as computed
     }
-  
+
   return;
 }
 
@@ -355,20 +353,11 @@ void
 SFLSMultiRobustStatSegmentor3D_c< TPixel >
 ::doSegmenation()
 {
-  //double startingTime = clock();
-      
-
   getThingsReady();
-
-//   std::ofstream f("/tmp/d.txt", std::ios_base::app);
-//   f<<"m_maxRunningTime = "<<this->m_maxRunningTime<<std::endl;
-//   f.close();
-  
-
 
   /*============================================================
    * From the initial mask, generate: 1. SFLS, 2. mp_label and
-   * 3. mp_phi.      
+   * 3. mp_phi.
    */
   this->initializeSFLS();
 
@@ -388,57 +377,6 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
       this->normalizeForce();
 
       this->oneStepLevelSetEvolution();
-
-
-
-      /*----------------------------------------------------------------------
-        If the level set stops growing, stop */
-//       this->updateInsideVoxelCount();
-//       if (it > 2 && oldVoxelCount >= this->m_insideVoxelCount)
-//         {
-//           std::ofstream f("/tmp/o.txt");
-//           f<<"stop grow\n";
-//           f.close();
-
-//           break;
-//         }
-
-      /* If the level set stops growing, stop
-         ----------------------------------------------------------------------*/
-
-
-//       /*----------------------------------------------------------------------
-//         If the inside physical volume exceed expected volume, stop */
-//       double volumeIn = (this->m_insideVoxelCount)*(this->m_dx)*(this->m_dy)*(this->m_dz);
-//       if (volumeIn > (this->m_maxVolume))
-//         {
-//           //          std::fstream f("/tmp/o.txt", std::ios_base::app);
-//           std::ofstream f("/tmp/o.txt");
-//           f<<"m_maxVolume = "<<this->m_maxVolume<<std::endl;
-//           f<<"volumeIn = "<<volumeIn<<std::endl;
-
-//           f<<"reach max volume\n";
-//           f.close();
-
-
-//           break;
-//         }
-//       /*If the inside physical volume exceed expected volume, stop 
-//         ----------------------------------------------------------------------*/
-
-      
-//       double ellapsedTime = (clock() - startingTime)/static_cast<double>(CLOCKS_PER_SEC);
-//       if (ellapsedTime > (this->m_maxRunningTime))
-//         {
-//           std::ofstream f("/tmp/o.txt");
-//           f<<"running time = "<<ellapsedTime<<std::endl;
-//           f<<"m_maxRunningTime = "<<this->m_maxRunningTime<<std::endl;
-//           f.close();
-
-//           break;
-//         }
-
-
     }
 
 
@@ -492,7 +430,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
 
   std::sort(samplesDeMedian.begin(), samplesDeMedian.end() );
 
-  double mad = (1 - l2)*samplesDeMedian[static_cast<long>(q2_floor)] + l2*samplesDeMedian[static_cast<long>(q2_floor) + 1];  
+  double mad = (1 - l2)*samplesDeMedian[static_cast<long>(q2_floor)] + l2*samplesDeMedian[static_cast<long>(q2_floor) + 1];
   robustStat[2] = mad;
 
 
@@ -507,20 +445,10 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
 ::labelMapToSeeds()
 {
   m_multipleSeedLists.resize(this->m_numOfObjects);
-  // m_numOfObjects different labels, including background, which is now just a label
-
 
   typedef itk::ImageRegionConstIteratorWithIndex<labelMap_t> ImageRegionConstIteratorWithIndex_t;
   ImageRegionConstIteratorWithIndex_t it(this->m_labelMap, this->m_labelMap->GetLargestPossibleRegion() );
   it.GoToBegin();
-
-
-//   //debug//
-//   char tmp[1000];
-//   sprintf(tmp, "_seeds_%d");
-//   std::ofstream sf("_seeds.txt");  
-//   //DEBUG//
-
 
   {
     std::vector<int> thisSeed(3);
@@ -537,107 +465,14 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
             thisSeed[1] = idx[1];
             thisSeed[2] = idx[2];
 
-
-//             //debug//
-//             std::cout<<"thisLabel = "<<thisLabel<<"\t thisLabelIdx = "<<thisLabelIdx<<"\t"\
-//                      <<thisSeed[0]<<", "<<thisSeed[1]<<", "<<thisSeed[2]<<std::endl;
-//             //DEBUG//
-
-
             this->m_multipleSeedLists[thisLabelIdx].push_back(thisSeed);
           }
       }
   }
 
-
-//   //debug//
-//   for (short idLabel = 0; idLabel < this->m_numOfObjects; ++idLabel)
-//     {
-//       long numOfSeedsForThisObj = this->m_multipleSeedLists[idLabel].size();
-//       for (long i = 0; i < numOfSeedsForThisObj; ++i)
-//         {
-//           std::cout<<"labelIdx = "<<idLabel<<", seeds = "              \
-//                    <<this->m_multipleSeedLists[idLabel][i][0]<<", "    \
-//                    <<this->m_multipleSeedLists[idLabel][i][1]<<", "    \
-//                    <<this->m_multipleSeedLists[idLabel][i][2]<<std::endl;
-//         }
-//     }
-//   exit(0);
-//   //debug//
-  
-
-
   return;
 }
 
-
-// /* ============================================================ */
-// template< typename TPixel >
-// void
-// SFLSMultiRobustStatSegmentor3D_c< TPixel >
-// ::dialteSeeds()
-// {
-//   /* For each seed, add its 26 neighbors into the seed list. */
-
-//   if (!(this->mp_img))
-//     {
-//       std::cerr<<"Error: set input image first.\n";
-//       raise(SIGABRT);
-//     }
-
-
-//   long n = m_seeds.size();
-//   std::vector<std::vector<long> > newSeeds;
-
-//   if (n == 0)
-//     {
-//       std::cerr << "Error: No seeds specified." << std::endl;
-//       raise(SIGABRT);
-//     }
-
-
-//   for (long i = 0; i < n; ++i)
-//     {
-//       if (3 != m_seeds[i].size())
-//         {
-//           std::cerr<<"Error: 3 != m_seeds[i].size()\n";
-//           raise(SIGABRT);
-//         }
-
-//       long ix = m_seeds[i][0];
-//       long iy = m_seeds[i][1];
-//       long iz = m_seeds[i][2];
-
-//       for (long iiz = iz - 1; iiz <= iz + 1; ++iiz)
-//         {
-//           for (long iiy = iy - 1; iiy <= iy + 1; ++iiy)
-//             {
-//               for (long iix = ix - 1; iix <= ix + 1; ++iix)
-//                 {
-//                   if (0 <= iix && iix < this->m_nx    \
-//                       && 0 <= iiy && iiy < this->m_ny    \
-//                       && 0 <= iiz && iiz < this->m_nz)
-//                     {
-//                       /* Some locations may be added multiple times,
-//                          if the original seeds are close. But I think
-//                          this is fine */
-
-//                       std::vector<long> s(3);
-//                       s[0] = iix;
-//                       s[1] = iiy;
-//                       s[2] = iiz;
-
-//                       newSeeds.push_back(s);
-//                     }
-//                 }
-//             }
-//         }
-//     }
-  
-//   m_seeds.assign(newSeeds.begin(), newSeeds.end() );
-
-//   return;
-// }
 
 
 /* ============================================================  */
@@ -682,7 +517,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
           long iz = seedsOfThisObj[i][2];
 
           TIndex idx = {{ix, iy, iz}};
-                      
+
           std::vector<double> featureHere;
           computeFeatureAt(idx, featureHere);
 
@@ -729,20 +564,6 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
         }
     } // iObj
 
-
-//   //debug//
-//   for (short iObj = 0; iObj < this->m_numOfObjects; ++iObj)
-//     {
-//       for (long i = 0; i < m_numberOfFeature; ++i)
-//         {
-//           std::cout<<"obj "<<iObj<<"\t, std = "<<m_kernelStddevOfEachObj[iObj][i]<<std::endl;
-//         }
-//     }
-
-//   exit(0);
-//   //debug//
-  
-
   return;
 }
 
@@ -776,7 +597,6 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
   long n = seedOfThisObject.size(); // == m_featureAtTheSeeds.size()
 
   double p = 1;
-  //double p = 0;
 
   for (long i = 0; i < m_numberOfFeature; ++i)
     {
@@ -792,12 +612,11 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
           pp += exp(var2*(newFeature[i] - m_FeatureAtMultipleSeeds[labelId][ii][i]) \
                     *(newFeature[i] - m_FeatureAtMultipleSeeds[labelId][ii][i]));
         }
-      
+
       pp *= c;
       pp /= n;
 
       p *= pp;
-      //p = p>pp?p:pp;
     }
 
   return p;
@@ -823,11 +642,6 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
   m_kernelWidthFactor = f;
 
 
-  std::ofstream fil("/tmp/d.txt", std::ios_base::app);
-  fil<<"m_kernelWidthFactor = "<<m_kernelWidthFactor<<std::endl;
-  fil.close();
-
-
   return;
 }
 
@@ -838,11 +652,6 @@ void
 SFLSMultiRobustStatSegmentor3D_c< TPixel >
 ::setIntensityHomogeneity(double h)
 {
-  std::ofstream fil("/tmp/d.txt", std::ios_base::app);
-  fil<<"intensity homogeneity = "<<h<<std::endl;
-  fil.close();
-
-
   double f = h*(10.0 - 0.3) + 0.3;
 
   setKernelWidthFactor(f);
@@ -857,7 +666,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
 ::estimatePDFs()
 {
   m_PDFlearnedFromSeeds.clear();
-  
+
   computeMinMax(); // so we have the range of all pdfs
 
 
@@ -867,7 +676,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
 
       for (long ifeature = 0; ifeature < m_numberOfFeature; ++ifeature)
         {
-          std::vector<double> PDFOfThisFeaturesOfThisLable(m_inputImageIntensityMax - m_inputImageIntensityMin + 1); 
+          std::vector<double> PDFOfThisFeaturesOfThisLable(m_inputImageIntensityMax - m_inputImageIntensityMin + 1);
           // assumption: TPixel are of integer types.
 
           double stdDev = m_kernelStddevOfEachObj[labelId][ifeature]/m_kernelWidthFactor; // /10 as in Eric's appendix
@@ -889,7 +698,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
                   pp += exp(var2*(a - m_FeatureAtMultipleSeeds[labelId][ii][ifeature]) \
                             *(a - m_FeatureAtMultipleSeeds[labelId][ii][ifeature]));
                 }
-      
+
               pp *= c;
               pp /= n;
 
@@ -931,7 +740,7 @@ SFLSMultiRobustStatSegmentor3D_c< TPixel >
   for (; !it.IsAtEnd(); ++it)
     {
       TPixel v = it.Get();
-      
+
       m_inputImageIntensityMin = m_inputImageIntensityMin<v?m_inputImageIntensityMin:v;
       m_inputImageIntensityMax = m_inputImageIntensityMax>v?m_inputImageIntensityMax:v;
     }

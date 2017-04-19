@@ -17,7 +17,7 @@ template< typename TPixel >
 SFLSMultiSegmentor3D_c< TPixel >
 ::SFLSMultiSegmentor3D_c()
 {
-  basicInit(); 
+  basicInit();
 }
 
 
@@ -43,12 +43,6 @@ SFLSMultiSegmentor3D_c< TPixel >
   m_numOfObjects = 0;
 
   m_curvatureWeight = 0.0;
-
-//   m_insideVoxelCount = 0;
-//   m_insideVolume = 0;
-
-//   m_maxVolume = 1e10; // in mm^3
-//   m_maxRunningTime = 3600; // in sec
 
   m_labelMapPreprocessed = false;
 
@@ -95,7 +89,7 @@ SFLSMultiSegmentor3D_c< TPixel >
       m_ny = size[1];
       m_nz = size[2];
 
-      typename ImageType::SpacingType spc = img->GetSpacing();      
+      typename ImageType::SpacingType spc = img->GetSpacing();
       m_dx = spc[0];
       m_dy = spc[1];
       m_dz = spc[2];
@@ -169,7 +163,7 @@ SFLSMultiSegmentor3D_c< TPixel >
       raise(SIGABRT);
     }
 
-  /* 
+  /*
      1. get the unique labels
 
      2. the # of unique labels
@@ -188,10 +182,10 @@ SFLSMultiSegmentor3D_c< TPixel >
     {
       m_objectLabelList[i++] = iter.Get();
     }
-  
+
   std::sort(m_objectLabelList.begin(), m_objectLabelList.end());
   std::vector<short>::iterator itl = unique(m_objectLabelList.begin(), m_objectLabelList.end());
-  m_objectLabelList.resize( itl - m_objectLabelList.begin() );    
+  m_objectLabelList.resize( itl - m_objectLabelList.begin() );
 
   if (m_objectLabelList[0] != 0)
     {
@@ -200,7 +194,7 @@ SFLSMultiSegmentor3D_c< TPixel >
     }
 
   m_objectLabelList.erase(m_objectLabelList.begin());
- 
+
 
   // 2.
   m_numOfObjects = m_objectLabelList.size();
@@ -272,7 +266,7 @@ SFLSMultiSegmentor3D_c< TPixel >
    * go through all nbhd who is in the layer of label = mylevel+1
    * pick the LARGEST phi.
    */
-  
+
   typename LSImageType::Pointer mp_phi = m_phiList[labelId];
   typename LabelImageType::Pointer mp_label = m_labelList[labelId];
 
@@ -280,14 +274,13 @@ SFLSMultiSegmentor3D_c< TPixel >
   TIndex idx = {{ix, iy, iz}};
   char mylevel = mp_label->GetPixel(idx);
 
-  //  char mylevel = mp_label->get(ix, iy, iz);
   bool foundNbhd = false;
 
   if (mylevel > 0)
     {
       // find the SMALLEST phi
       thePhi = 10000;
-      
+
       TIndex idx1 = {{ix+1, iy, iz}};
       if ( (ix+1 < m_nx) && (mp_label->GetPixel(idx1) == mylevel - 1) )
         {
@@ -305,7 +298,7 @@ SFLSMultiSegmentor3D_c< TPixel >
 
           foundNbhd = true;
         }
-      
+
       TIndex idx3 = {{ix, iy+1, iz}};
       if ( (iy+1 < m_ny) && (mp_label->GetPixel(idx3) == mylevel - 1) )
         {
@@ -316,7 +309,7 @@ SFLSMultiSegmentor3D_c< TPixel >
         }
 
       TIndex idx4 = {{ix, iy-1, iz}};
-      if ( ((iy-1) >= 0 ) && (mp_label->GetPixel(idx4) == mylevel - 1) ) 
+      if ( ((iy-1) >= 0 ) && (mp_label->GetPixel(idx4) == mylevel - 1) )
         {
           double itsPhi = mp_phi->GetPixel(idx4);
           thePhi = thePhi<itsPhi?thePhi:itsPhi;
@@ -334,7 +327,7 @@ SFLSMultiSegmentor3D_c< TPixel >
         }
 
       TIndex idx6 = {{ix, iy, iz-1}};
-      if ( ((iz-1) >= 0 ) && (mp_label->GetPixel(idx6) == mylevel - 1) ) 
+      if ( ((iz-1) >= 0 ) && (mp_label->GetPixel(idx6) == mylevel - 1) )
         {
           double itsPhi = mp_phi->GetPixel(idx6);
           thePhi = thePhi<itsPhi?thePhi:itsPhi;
@@ -377,7 +370,7 @@ SFLSMultiSegmentor3D_c< TPixel >
         }
 
       TIndex idx4 = {{ix, iy-1, iz}};
-      if ( ((iy-1) >= 0 ) && (mp_label->GetPixel(idx4) == mylevel + 1) ) 
+      if ( ((iy-1) >= 0 ) && (mp_label->GetPixel(idx4) == mylevel + 1) )
         {
           double itsPhi = mp_phi->GetPixel(idx4);
           thePhi = thePhi>itsPhi?thePhi:itsPhi;
@@ -395,7 +388,7 @@ SFLSMultiSegmentor3D_c< TPixel >
         }
 
       TIndex idx6 = {{ix, iy, iz-1}};
-      if ( ((iz-1) >= 0 ) && (mp_label->GetPixel(idx6) == mylevel + 1) ) 
+      if ( ((iz-1) >= 0 ) && (mp_label->GetPixel(idx6) == mylevel + 1) )
         {
           double itsPhi = mp_phi->GetPixel(idx6);
           thePhi = thePhi>itsPhi?thePhi:itsPhi;
@@ -411,7 +404,7 @@ SFLSMultiSegmentor3D_c< TPixel >
 
 
 /* ============================================================
-   normalizeForce   
+   normalizeForce
    Normalize m_force s.t. max(abs(m_force)) < 0.5 */
 template< typename TPixel >
 void
@@ -421,8 +414,8 @@ SFLSMultiSegmentor3D_c< TPixel >
   std::vector< double >& forceOfThisObj = m_forceList[labelId];
 
   CSFLSLayer& m_lz = m_sflsList[labelId].m_lz;
-  
-  
+
+
   unsigned long nLz = m_lz.size();
 
   if (forceOfThisObj.size() != nLz )
@@ -460,7 +453,7 @@ SFLSMultiSegmentor3D_c< TPixel >
 }
 
 /* ============================================================
-   normalizeForce   
+   normalizeForce
    Normalize m_force s.t. max(abs(m_force)) < 0.5 */
 template< typename TPixel >
 void
@@ -474,23 +467,6 @@ SFLSMultiSegmentor3D_c< TPixel >
 
   return;
 }
-
-
-// /* ============================================================
-//    updateInsideVoxelCount    */
-// template< typename TPixel >
-// void
-// SFLSMultiSegmentor3D_c< TPixel >
-// ::updateInsideVoxelCount()
-// {
-//   m_insideVoxelCount -= m_lIn2out.size();
-//   m_insideVoxelCount += m_lOut2in.size();
-
-//   m_insideVolume = m_insideVoxelCount*m_dx*m_dy*m_dz;
-
-//   return;
-// }
-
 
 
 /* ============================================================
@@ -520,7 +496,7 @@ SFLSMultiSegmentor3D_c< TPixel >
   CSFLSLayer& m_lp2 = m_sflsList[labelId].m_lp2;
 
   /*--------------------------------------------------
-    1. add F to phi(Lz), create Sn1 & Sp1 
+    1. add F to phi(Lz), create Sn1 & Sp1
     scan Lz values [-2.5 -1.5)[-1.5 -.5)[-.5 .5](.5 1.5](1.5 2.5]
     ========                */
   {
@@ -531,7 +507,7 @@ SFLSMultiSegmentor3D_c< TPixel >
     {
       long iiizzz = 0;
       for (CSFLSLayer::iterator itz = m_lz.begin(); itz != m_lz.end(); ++itz)
-        m_lzIterVct[iiizzz++] = itz;    
+        m_lzIterVct[iiizzz++] = itz;
     }
 
     //    for (CSFLSLayer::iterator itz = m_lz.begin(); itz != m_lz.end(); ++itf)
@@ -566,7 +542,7 @@ SFLSMultiSegmentor3D_c< TPixel >
           }
         else
           {
-            ++itz;              
+            ++itz;
           }
         /*--------------------------------------------------
           NOTE, mp_label are (should) NOT update here. They should
@@ -576,14 +552,11 @@ SFLSMultiSegmentor3D_c< TPixel >
   }
 
 
-  //     // debug
-  //     labelsCoherentCheck1();
-
 
   /*--------------------------------------------------
     2. update Ln1,Lp1,Lp2,Lp2, ****in that order****
 
-    2.1 scan Ln1 values [-2.5 -1.5)[-1.5 -.5)[-.5 .5](.5 1.5](1.5 2.5] 
+    2.1 scan Ln1 values [-2.5 -1.5)[-1.5 -.5)[-.5 .5](.5 1.5](1.5 2.5]
     ==========                     */
   for (CSFLSLayer::iterator itn1 = m_ln1.begin(); itn1 != m_ln1.end(); )
     {
@@ -616,7 +589,7 @@ SFLSMultiSegmentor3D_c< TPixel >
               ++itn1;
             }
         }
-      else 
+      else
         {
           /*--------------------------------------------------
             No nbhd in inner (closer to zero contour) layer, so
@@ -625,18 +598,13 @@ SFLSMultiSegmentor3D_c< TPixel >
           Sn2.push_back(*itn1);
           itn1 = m_ln1.erase(itn1);
 
-          mp_phi->SetPixel(idx, mp_phi->GetPixel(idx) - 1);  
+          mp_phi->SetPixel(idx, mp_phi->GetPixel(idx) - 1);
         }
     }
 
 
-
-  //     // debug
-  //     labelsCoherentCheck1();
-
-
   /*--------------------------------------------------
-    2.2 scan Lp1 values [-2.5 -1.5)[-1.5 -.5)[-.5 .5](.5 1.5](1.5 2.5] 
+    2.2 scan Lp1 values [-2.5 -1.5)[-1.5 -.5)[-.5 .5](.5 1.5](1.5 2.5]
     ========          */
   for (CSFLSLayer::iterator itp1 = m_lp1.begin(); itp1 != m_lp1.end();)
     {
@@ -669,7 +637,7 @@ SFLSMultiSegmentor3D_c< TPixel >
               ++itp1;
             }
         }
-      else 
+      else
         {
           /*--------------------------------------------------
             No nbhd in inner (closer to zero contour) layer, so
@@ -679,18 +647,13 @@ SFLSMultiSegmentor3D_c< TPixel >
           Sp2.push_back(*itp1);
           itp1 = m_lp1.erase(itp1);
 
-          mp_phi->SetPixel(idx, mp_phi->GetPixel(idx) + 1);  
+          mp_phi->SetPixel(idx, mp_phi->GetPixel(idx) + 1);
         }
     }
 
 
-  //     // debug
-  //     labelsCoherentCheck1();
-
-
-
   /*--------------------------------------------------
-    2.3 scan Ln2 values [-2.5 -1.5)[-1.5 -.5)[-.5 .5](.5 1.5](1.5 2.5] 
+    2.3 scan Ln2 values [-2.5 -1.5)[-1.5 -.5)[-.5 .5](.5 1.5](1.5 2.5]
     ==========                                      */
   for (CSFLSLayer::iterator itn2 = m_ln2.begin(); itn2 != m_ln2.end(); )
     {
@@ -724,17 +687,13 @@ SFLSMultiSegmentor3D_c< TPixel >
               ++itn2;
             }
         }
-      else 
+      else
         {
           itn2 = m_ln2.erase(itn2);
           mp_phi->SetPixel(idx, -3);
           mp_label->SetPixel(idx, -3);
         }
     }
-
-
-  //     // debug
-  //     labelsCoherentCheck1();
 
 
 
@@ -772,7 +731,7 @@ SFLSMultiSegmentor3D_c< TPixel >
               ++itp2;
             }
         }
-      else 
+      else
         {
           itp2 = m_lp2.erase(itp2);
           mp_phi->SetPixel(idx, 3);
@@ -781,13 +740,9 @@ SFLSMultiSegmentor3D_c< TPixel >
     }
 
 
-  //     // debug
-  //     labelsCoherentCheck1();
-
-
 
   /*--------------------------------------------------
-    3. Deal with S-lists Sz,Sn1,Sp1,Sn2,Sp2 
+    3. Deal with S-lists Sz,Sn1,Sp1,Sn2,Sp2
     3.1 Scan Sz */
   for (CSFLSLayer::iterator itSz = Sz.begin(); itSz != Sz.end(); ++itSz)
     {
@@ -796,14 +751,10 @@ SFLSMultiSegmentor3D_c< TPixel >
       long iz = (*itSz)[2];
       TIndex idx = {{ix, iy, iz}};
 
-        
+
       m_lz.push_back(*itSz);
       mp_label->SetPixel(idx, 0);
     }
-
-
-  //     // debug
-  //     labelsCoherentCheck1();
 
 
 
@@ -816,7 +767,7 @@ SFLSMultiSegmentor3D_c< TPixel >
       long iz = (*itSn1)[2];
 
       TIndex idx = {{ix, iy, iz}};
-        
+
       m_ln1.push_back(*itSn1);
       // itSn1 = Sn1.erase(itSn1);
 
@@ -826,21 +777,21 @@ SFLSMultiSegmentor3D_c< TPixel >
       if ( (ix+1 < m_nx) && doubleEqual(mp_phi->GetPixel(idx1), -3.0) )
         {
           Sn2.push_back(NodeType(ix+1, iy, iz));
-          mp_phi->SetPixel(idx1, mp_phi->GetPixel(idx) - 1 ); 
+          mp_phi->SetPixel(idx1, mp_phi->GetPixel(idx) - 1 );
         }
 
       TIndex idx2 = {{ix-1, iy, iz}};
       if ( (ix-1 >= 0) && doubleEqual(mp_phi->GetPixel(idx2), -3.0) )
         {
           Sn2.push_back(NodeType(ix-1, iy, iz));
-          mp_phi->SetPixel(idx2, mp_phi->GetPixel(idx) - 1); 
+          mp_phi->SetPixel(idx2, mp_phi->GetPixel(idx) - 1);
         }
 
       TIndex idx3 = {{ix, iy+1, iz}};
       if ( (iy+1 < m_ny) && doubleEqual(mp_phi->GetPixel(idx3), -3.0) )
         {
           Sn2.push_back(NodeType(ix, iy+1, iz));
-          mp_phi->SetPixel(idx3, mp_phi->GetPixel(idx) - 1 ); 
+          mp_phi->SetPixel(idx3, mp_phi->GetPixel(idx) - 1 );
         }
 
       TIndex idx4 = {{ix, iy-1, iz}};
@@ -854,7 +805,7 @@ SFLSMultiSegmentor3D_c< TPixel >
       if ( (iz+1 < m_nz) && doubleEqual(mp_phi->GetPixel(idx5), -3.0) )
         {
           Sn2.push_back(NodeType(ix, iy, iz+1));
-          mp_phi->SetPixel(idx5, mp_phi->GetPixel(idx) - 1 ); 
+          mp_phi->SetPixel(idx5, mp_phi->GetPixel(idx) - 1 );
         }
 
       TIndex idx6 = {{ix, iy, iz-1}};
@@ -864,10 +815,6 @@ SFLSMultiSegmentor3D_c< TPixel >
           mp_phi->SetPixel(idx6, mp_phi->GetPixel(idx) - 1 );
         }
     }
-
-
-  //     // debug
-  //     labelsCoherentCheck1();
 
 
   /*--------------------------------------------------
@@ -880,7 +827,7 @@ SFLSMultiSegmentor3D_c< TPixel >
 
       TIndex idx = {{ix, iy, iz}};
 
-        
+
       m_lp1.push_back(*itSp1);
       mp_label->SetPixel(idx, 1);
 
@@ -888,21 +835,21 @@ SFLSMultiSegmentor3D_c< TPixel >
       if ( (ix+1 < m_nx) && doubleEqual(mp_phi->GetPixel(idx1), 3.0) )
         {
           Sp2.push_back(NodeType(ix+1, iy, iz));
-          mp_phi->SetPixel(idx1, mp_phi->GetPixel(idx) + 1 ); 
+          mp_phi->SetPixel(idx1, mp_phi->GetPixel(idx) + 1 );
         }
 
       TIndex idx2 = {{ix-1, iy, iz}};
       if ( (ix-1 >= 0) && doubleEqual(mp_phi->GetPixel(idx2), 3.0) )
         {
           Sp2.push_back(NodeType(ix-1, iy, iz));
-          mp_phi->SetPixel(idx2, mp_phi->GetPixel(idx) + 1); 
+          mp_phi->SetPixel(idx2, mp_phi->GetPixel(idx) + 1);
         }
 
       TIndex idx3 = {{ix, iy+1, iz}};
       if ( (iy+1 < m_ny) && doubleEqual(mp_phi->GetPixel(idx3), 3.0) )
         {
           Sp2.push_back(NodeType(ix, iy+1, iz));
-          mp_phi->SetPixel(idx3, mp_phi->GetPixel(idx) + 1 ); 
+          mp_phi->SetPixel(idx3, mp_phi->GetPixel(idx) + 1 );
         }
 
       TIndex idx4 = {{ix, iy-1, iz}};
@@ -916,7 +863,7 @@ SFLSMultiSegmentor3D_c< TPixel >
       if ( (iz+1 < m_nz) && doubleEqual(mp_phi->GetPixel(idx5), 3.0) )
         {
           Sp2.push_back(NodeType(ix, iy, iz+1));
-          mp_phi->SetPixel(idx5, mp_phi->GetPixel(idx) + 1 ); 
+          mp_phi->SetPixel(idx5, mp_phi->GetPixel(idx) + 1 );
         }
 
       TIndex idx6 = {{ix, iy, iz-1}};
@@ -925,17 +872,13 @@ SFLSMultiSegmentor3D_c< TPixel >
           Sp2.push_back(NodeType(ix, iy, iz-1) );
           mp_phi->SetPixel(idx6, mp_phi->GetPixel(idx) + 1 );
         }
-    } 
-
-
-  //     // debug
-  //     labelsCoherentCheck1();
+    }
 
 
   /*--------------------------------------------------
     3.4 Scan Sn2     */
   {
-    //debug 
+    //debug
     int aaa = 0;
     for (CSFLSLayer::iterator itSn2 = Sn2.begin(); itSn2 != Sn2.end(); ++itSn2, ++aaa)
       {
@@ -944,13 +887,10 @@ SFLSMultiSegmentor3D_c< TPixel >
         long iz = (*itSn2)[2];
 
         TIndex idx = {{ix, iy, iz}};
-        
+
         m_ln2.push_back(*itSn2);
 
         mp_label->SetPixel(idx, -2);
-
-        //           // debug
-        //           labelsCoherentCheck1();
       }
   }
 
@@ -965,17 +905,13 @@ SFLSMultiSegmentor3D_c< TPixel >
       long iz = (*itSp2)[2];
 
       TIndex idx = {{ix, iy, iz}};
-        
+
       m_lp2.push_back(*itSp2);
 
       mp_label->SetPixel(idx, 2);
     }
 
 
-  //     // debug
-  //     labelsCoherentCheck1();
-  
-  
   return;
 }
 
@@ -1015,7 +951,7 @@ SFLSMultiSegmentor3D_c< TPixel >
     {
       typename LabelImageType::Pointer thisLabel = LabelImageType::New();
       TRegion region = mp_img->GetLargestPossibleRegion();
-  
+
       thisLabel->SetRegions( region );
       thisLabel->Allocate();
 
@@ -1043,12 +979,12 @@ SFLSMultiSegmentor3D_c< TPixel >
   double arbitraryInitPhi = 1000;
   //  mp_phi.reset(new cArray3D< double >(m_nx, m_ny, m_nz, arbitraryInitPhi) );
 
-  
+
   for (short i = 0; i < m_numOfObjects; ++i)
     {
       typename LSImageType::Pointer thisPhi = LSImageType::New();
       TRegion region = mp_img->GetLargestPossibleRegion();
-  
+
       thisPhi->SetRegions( region );
       thisPhi->Allocate();
 
@@ -1076,11 +1012,11 @@ SFLSMultiSegmentor3D_c< TPixel >
 {
   short thisLabel = m_objectLabelList[i];
 
-  for (long iz = 0; iz < m_nz; ++iz) 
+  for (long iz = 0; iz < m_nz; ++iz)
     {
-      for (long iy = 0; iy < m_ny; ++iy) 
+      for (long iy = 0; iy < m_ny; ++iy)
         {
-          for (long ix = 0; ix < m_nx; ++ix) 
+          for (long ix = 0; ix < m_nx; ++ix)
             {
               TIndex idx = {{ix, iy, iz}};
               TIndex idx1 = {{ix-1, iy, iz}};
@@ -1092,14 +1028,14 @@ SFLSMultiSegmentor3D_c< TPixel >
 
               //mark the inside and outside of label and phi
               if( m_labelMap->GetPixel(idx) != thisLabel )
-                { 
-                  (m_labelList[i])->SetPixel(idx, 3); 
-                  (m_phiList[i])->SetPixel(idx, 3); 
+                {
+                  (m_labelList[i])->SetPixel(idx, 3);
+                  (m_phiList[i])->SetPixel(idx, 3);
                 }
               else
-                { 
-                  (m_labelList[i])->SetPixel(idx, -3); 
-                  (m_phiList[i])->SetPixel(idx, -3); 
+                {
+                  (m_labelList[i])->SetPixel(idx, -3);
+                  (m_phiList[i])->SetPixel(idx, -3);
 
 
                   if ( (iy+1 < m_ny && m_labelMap->GetPixel(idx4) != thisLabel) \
@@ -1136,36 +1072,36 @@ SFLSMultiSegmentor3D_c< TPixel >
 
           if ( (m_labelList[i])->GetPixel(idx) == 3 )
             {
-              (m_labelList[i])->SetPixel(idx, 1); 
-              (m_phiList[i])->SetPixel(idx, 1); 
-            
+              (m_labelList[i])->SetPixel(idx, 1);
+              (m_phiList[i])->SetPixel(idx, 1);
+
               m_sflsList[i].m_lp1.push_back( NodeType(ix+1, iy, iz) );
             }
           else if ( (m_labelList[i])->GetPixel(idx) == -3 )
             {
-              (m_labelList[i])->SetPixel(idx, -1); 
-              (m_phiList[i])->SetPixel(idx, -1); 
-            
+              (m_labelList[i])->SetPixel(idx, -1);
+              (m_phiList[i])->SetPixel(idx, -1);
+
               m_sflsList[i].m_ln1.push_back( NodeType(ix+1, iy, iz) );
             }
         }
-          
+
       if(ix-1 >= 0)
         {
           TIndex idx = {{ix-1, iy, iz}};
 
           if ( (m_labelList[i])->GetPixel(idx) == 3 )
             {
-              (m_labelList[i])->SetPixel(idx, 1); 
-              (m_phiList[i])->SetPixel(idx, 1); 
-            
+              (m_labelList[i])->SetPixel(idx, 1);
+              (m_phiList[i])->SetPixel(idx, 1);
+
               m_sflsList[i].m_lp1.push_back( NodeType(ix-1, iy, iz) );
             }
           else if ( (m_labelList[i])->GetPixel(idx) == -3 )
             {
-              (m_labelList[i])->SetPixel(idx, -1); 
-              (m_phiList[i])->SetPixel(idx, -1); 
-            
+              (m_labelList[i])->SetPixel(idx, -1);
+              (m_phiList[i])->SetPixel(idx, -1);
+
               m_sflsList[i].m_ln1.push_back( NodeType(ix-1, iy, iz) );
             }
         }
@@ -1176,16 +1112,16 @@ SFLSMultiSegmentor3D_c< TPixel >
 
           if ( (m_labelList[i])->GetPixel(idx) == 3 )
             {
-              (m_labelList[i])->SetPixel(idx, 1); 
-              (m_phiList[i])->SetPixel(idx, 1); 
-            
+              (m_labelList[i])->SetPixel(idx, 1);
+              (m_phiList[i])->SetPixel(idx, 1);
+
               m_sflsList[i].m_lp1.push_back(NodeType(ix, iy+1, iz) );
             }
           else if ( (m_labelList[i])->GetPixel(idx) == -3 )
             {
-              (m_labelList[i])->SetPixel(idx, -1); 
-              (m_phiList[i])->SetPixel(idx, -1); 
-            
+              (m_labelList[i])->SetPixel(idx, -1);
+              (m_phiList[i])->SetPixel(idx, -1);
+
               m_sflsList[i].m_ln1.push_back( NodeType(ix, iy+1, iz) );
             }
         }
@@ -1196,16 +1132,16 @@ SFLSMultiSegmentor3D_c< TPixel >
 
           if ( (m_labelList[i])->GetPixel(idx) == 3 )
             {
-              (m_labelList[i])->SetPixel(idx, 1); 
-              (m_phiList[i])->SetPixel(idx, 1); 
-            
+              (m_labelList[i])->SetPixel(idx, 1);
+              (m_phiList[i])->SetPixel(idx, 1);
+
               m_sflsList[i].m_lp1.push_back( NodeType(ix, iy-1, iz) );
             }
           else if ( (m_labelList[i])->GetPixel(idx) == -3 )
             {
-              (m_labelList[i])->SetPixel(idx, -1); 
-              (m_phiList[i])->SetPixel(idx, -1); 
-            
+              (m_labelList[i])->SetPixel(idx, -1);
+              (m_phiList[i])->SetPixel(idx, -1);
+
               m_sflsList[i].m_ln1.push_back( NodeType(ix, iy-1, iz) );
             }
         }
@@ -1216,16 +1152,16 @@ SFLSMultiSegmentor3D_c< TPixel >
 
           if ( (m_labelList[i])->GetPixel(idx) == 3 )
             {
-              (m_labelList[i])->SetPixel(idx, 1); 
-              (m_phiList[i])->SetPixel(idx, 1); 
-            
+              (m_labelList[i])->SetPixel(idx, 1);
+              (m_phiList[i])->SetPixel(idx, 1);
+
               m_sflsList[i].m_lp1.push_back(NodeType(ix, iy, iz+1) );
             }
           else if ( (m_labelList[i])->GetPixel(idx) == -3 )
             {
-              (m_labelList[i])->SetPixel(idx, -1); 
-              (m_phiList[i])->SetPixel(idx, -1); 
-            
+              (m_labelList[i])->SetPixel(idx, -1);
+              (m_phiList[i])->SetPixel(idx, -1);
+
               m_sflsList[i].m_ln1.push_back( NodeType(ix, iy, iz+1) );
             }
         }
@@ -1236,16 +1172,16 @@ SFLSMultiSegmentor3D_c< TPixel >
 
           if ( (m_labelList[i])->GetPixel(idx) == 3 )
             {
-              (m_labelList[i])->SetPixel(idx, 1); 
-              (m_phiList[i])->SetPixel(idx, 1); 
-            
+              (m_labelList[i])->SetPixel(idx, 1);
+              (m_phiList[i])->SetPixel(idx, 1);
+
               m_sflsList[i].m_lp1.push_back( NodeType(ix, iy, iz-1) );
             }
           else if ( (m_labelList[i])->GetPixel(idx) == -3 )
             {
-              (m_labelList[i])->SetPixel(idx, -1); 
-              (m_phiList[i])->SetPixel(idx, -1); 
-            
+              (m_labelList[i])->SetPixel(idx, -1);
+              (m_phiList[i])->SetPixel(idx, -1);
+
               m_sflsList[i].m_ln1.push_back( NodeType(ix, iy, iz-1) );
             }
         }
@@ -1262,45 +1198,45 @@ SFLSMultiSegmentor3D_c< TPixel >
       TIndex idx1 = {{ix+1, iy, iz}};
       if(ix+1 < m_nx && (m_labelList[i])->GetPixel(idx1) == -3 )
         {
-          (m_labelList[i])->SetPixel(idx1, -2); 
-          (m_phiList[i])->SetPixel(idx1, -2); 
-            
+          (m_labelList[i])->SetPixel(idx1, -2);
+          (m_phiList[i])->SetPixel(idx1, -2);
+
           m_sflsList[i].m_ln2.push_back( NodeType(ix+1, iy, iz) );
         }
 
       TIndex idx2 = {{ix-1, iy, iz}};
       if(ix-1 >= 0 && (m_labelList[i])->GetPixel(idx2) == -3 )
         {
-          (m_labelList[i])->SetPixel(idx2, -2); 
-          (m_phiList[i])->SetPixel(idx2, -2); 
-            
+          (m_labelList[i])->SetPixel(idx2, -2);
+          (m_phiList[i])->SetPixel(idx2, -2);
+
           m_sflsList[i].m_ln2.push_back( NodeType(ix-1, iy, iz) );
         }
 
       TIndex idx3 = {{ix, iy+1, iz}};
       if(iy+1 < m_ny && (m_labelList[i])->GetPixel(idx3) == -3 )
         {
-          (m_labelList[i])->SetPixel(idx3, -2); 
-          (m_phiList[i])->SetPixel(idx3, -2); 
-            
+          (m_labelList[i])->SetPixel(idx3, -2);
+          (m_phiList[i])->SetPixel(idx3, -2);
+
           m_sflsList[i].m_ln2.push_back( NodeType(ix, iy+1, iz) );
         }
 
       TIndex idx4 = {{ix, iy-1, iz}};
       if(iy-1 >= 0 && (m_labelList[i])->GetPixel(idx4) == -3 )
         {
-          (m_labelList[i])->SetPixel(idx4, -2); 
-          (m_phiList[i])->SetPixel(idx4, -2); 
-            
+          (m_labelList[i])->SetPixel(idx4, -2);
+          (m_phiList[i])->SetPixel(idx4, -2);
+
           m_sflsList[i].m_ln2.push_back( NodeType(ix, iy-1, iz) );
         }
 
       TIndex idx5 = {{ix, iy, iz+1}};
       if(iz+1 < m_nz && (m_labelList[i])->GetPixel(idx5) == -3 )
         {
-          (m_labelList[i])->SetPixel(idx5, -2); 
-          (m_phiList[i])->SetPixel(idx5, -2); 
-            
+          (m_labelList[i])->SetPixel(idx5, -2);
+          (m_phiList[i])->SetPixel(idx5, -2);
+
           m_sflsList[i].m_ln2.push_back( NodeType(ix, iy, iz+1) );
         }
 
@@ -1308,9 +1244,9 @@ SFLSMultiSegmentor3D_c< TPixel >
       TIndex idx6 = {{ix, iy, iz-1}};
       if(iz-1 >= 0 && (m_labelList[i])->GetPixel(idx6) == -3 )
         {
-          (m_labelList[i])->SetPixel(idx6, -2); 
-          (m_phiList[i])->SetPixel(idx6, -2); 
-            
+          (m_labelList[i])->SetPixel(idx6, -2);
+          (m_phiList[i])->SetPixel(idx6, -2);
+
           m_sflsList[i].m_ln2.push_back( NodeType(ix, iy, iz-1) );
         }
     }
@@ -1325,54 +1261,54 @@ SFLSMultiSegmentor3D_c< TPixel >
       TIndex idx1 = {{ix+1, iy, iz}};
       if(ix+1 < m_nx && (m_labelList[i])->GetPixel(idx1) == 3 )
         {
-          (m_labelList[i])->SetPixel(idx1, 2); 
-          (m_phiList[i])->SetPixel(idx1, 2); 
-            
+          (m_labelList[i])->SetPixel(idx1, 2);
+          (m_phiList[i])->SetPixel(idx1, 2);
+
           m_sflsList[i].m_lp2.push_back( NodeType(ix+1, iy, iz) );
         }
 
       TIndex idx2 = {{ix-1, iy, iz}};
       if(ix-1 >= 0 && (m_labelList[i])->GetPixel(idx2) == 3 )
         {
-          (m_labelList[i])->SetPixel(idx2, 2); 
-          (m_phiList[i])->SetPixel(idx2, 2); 
-            
+          (m_labelList[i])->SetPixel(idx2, 2);
+          (m_phiList[i])->SetPixel(idx2, 2);
+
           m_sflsList[i].m_lp2.push_back( NodeType(ix-1, iy, iz) );
         }
 
       TIndex idx3 = {{ix, iy+1, iz}};
       if(iy+1 < m_ny && (m_labelList[i])->GetPixel(idx3) == 3 )
         {
-          (m_labelList[i])->SetPixel(idx3, 2); 
-          (m_phiList[i])->SetPixel(idx3, 2); 
-            
+          (m_labelList[i])->SetPixel(idx3, 2);
+          (m_phiList[i])->SetPixel(idx3, 2);
+
           m_sflsList[i].m_lp2.push_back( NodeType(ix, iy+1, iz) );
         }
 
       TIndex idx4 = {{ix, iy-1, iz}};
       if(iy-1 >= 0 && (m_labelList[i])->GetPixel(idx4) == 3 )
         {
-          (m_labelList[i])->SetPixel(idx4, 2); 
-          (m_phiList[i])->SetPixel(idx4, 2); 
-            
+          (m_labelList[i])->SetPixel(idx4, 2);
+          (m_phiList[i])->SetPixel(idx4, 2);
+
           m_sflsList[i].m_lp2.push_back( NodeType(ix, iy-1, iz) );
         }
 
       TIndex idx5 = {{ix, iy, iz+1}};
       if(iz+1 < m_nz && (m_labelList[i])->GetPixel(idx5) == 3 )
         {
-          (m_labelList[i])->SetPixel(idx5, 2); 
-          (m_phiList[i])->SetPixel(idx5, 2); 
-            
+          (m_labelList[i])->SetPixel(idx5, 2);
+          (m_phiList[i])->SetPixel(idx5, 2);
+
           m_sflsList[i].m_lp2.push_back( NodeType(ix, iy, iz+1) );
         }
 
       TIndex idx6 = {{ix, iy, iz-1}};
       if(iz-1 >= 0 && (m_labelList[i])->GetPixel(idx6) == 3 )
         {
-          (m_labelList[i])->SetPixel(idx6, 2); 
-          (m_phiList[i])->SetPixel(idx6, 2); 
-            
+          (m_labelList[i])->SetPixel(idx6, 2);
+          (m_phiList[i])->SetPixel(idx6, 2);
+
           m_sflsList[i].m_lp2.push_back( NodeType(ix, iy, iz-1) );
         }
     }
@@ -1413,87 +1349,6 @@ SFLSMultiSegmentor3D_c< TPixel >
 }
 
 
-// /* ============================================================
-//    doSegmenation    */
-// template< typename TPixel >
-// void
-// SFLSMultiSegmentor3D_c< TPixel >
-// ::doSegmenation()
-// {
-//   /*============================================================
-//    * From the initial mask, generate: 1. SFLS, 2. mp_label and
-//    * 3. mp_phi.      
-//    */
-//   initializeSFLS();
-
-//   //gth818n::saveAsImage3< double >(mp_phi, "initPhi.nrrd");
-
-//   for (unsigned int it = 0; it < m_numIter; ++it)
-//     {
-//       std::cout<<"iteration "<<it<<"\n"<<std::flush;
-
-//       /*--------------------------------------------------
-//         Compute the force on the zero level set, NOT on the whole domain.
-//         This is NOT implemented in this base class.    
-
-//         This function will compute the m_force. m_force has the same
-//         size as the m_ln, indicating the change at each pixel on the
-//         zero level set.
-//       */
-//       computeForce(); 
-
-
-//       normalizeForce();
-
-//       //         // debug
-//       //         for (std::list< double >::const_iterator itf = this->m_force.begin(); itf != this->m_force.end(); ++itf)
-//       //           {
-//       //             std::cout<<(*itf)<<", ";
-//       //           }
-//       //         std::cout<<std::endl<<it<<std::endl<<std::endl;
-
-
-
-//       //         //debug//
-//       //         labelsCoherentCheck1();
-
-//       oneStepLevelSetEvolution();
-
-
-//       //         //debug//
-//       //         std::cout<<"-----------------------"<<it<<"---------------------------"<<std::endl;
-//       //         std::cout<<"lz \t ln1 \t ln2 \t lp1 \t lp2 \n";
-//       //         std::cout<<m_lz.size()<<"\t"<<m_ln1.size()<<"\t"<<m_ln2.size()<<"\t"<<m_lp1.size()<<"\t"<<m_lp2.size()<<std::endl;
-//       //         std::cout<<"--------------------------------------------------"<<std::endl;
-
-
-//       //         // debug
-//       //         labelsCoherentCheck1();
-
-
-//       //        gth818n::saveAsImage3< double >(mp_phi, "temp.nrrd");
-
-// updateInsideVoxelCount();
-//     }
-// }
-
-
-// /* getLevelSetFunction */
-// template< typename TPixel >
-// itk::Image<double, 3>::Pointer
-// SFLSMultiSegmentor3D_c< TPixel >
-// ::getLevelSetFunction()
-// {
-//   if (!m_done)
-//     {
-//       std::cerr<<"Error: not done.\n";
-//       raise(SIGABRT);
-//     }
-
-//   return mp_phi;
-// }
-
-
 template< typename TPixel >
 typename itk::Image<short, 3>::Pointer
 SFLSMultiSegmentor3D_c< TPixel >
@@ -1522,7 +1377,7 @@ SFLSMultiSegmentor3D_c< TPixel >
 
       labelMapIter_t it2( thisLabelMap, thisLabelMap->GetLargestPossibleRegion() );
       it2.GoToBegin();
-  
+
       for (; !it1.IsAtEnd(); ++it1, ++it2)
         {
           it1.Set(it1.Get() + it2.Get() );
@@ -1566,13 +1421,13 @@ SFLSMultiSegmentor3D_c< TPixel >
       bin->Allocate();
       bin->FillBuffer(0);
 
-      
+
       itkImageRegionIterator_t it1( m_phiList[i], m_phiList[i]->GetLargestPossibleRegion() );
       it1.GoToBegin();
 
       maskImageRegionIterator_t it2( bin, bin->GetLargestPossibleRegion() );
       it2.GoToBegin();
-  
+
       for (; !it1.IsAtEnd(); ++it1, ++it2)
         {
           LSImageType::PixelType v = it1.Get();
@@ -1582,7 +1437,7 @@ SFLSMultiSegmentor3D_c< TPixel >
               it2.Set(i+1);
             }
         }
-      
+
       m_finalLabelList.push_back(bin);
     }
 
@@ -1591,7 +1446,7 @@ SFLSMultiSegmentor3D_c< TPixel >
 
 
 /*============================================================
-  computeKappa 
+  computeKappa
 
   Compute kappa at a point in the zero level set  */
 template< typename TPixel >
@@ -1635,16 +1490,16 @@ SFLSMultiSegmentor3D_c< TPixel >
 
 
   if( ix+1 < m_nx && ix-1 >=0 )
-    { 
+    {
       xok = 1;
     }
 
-  if( iy+1 < m_ny && iy-1 >=0 ) 
+  if( iy+1 < m_ny && iy-1 >=0 )
     {
       yok = 1;
     }
 
-  if( iz+1 < m_nz && iz-1 >=0 ) 
+  if( iz+1 < m_nz && iz-1 >=0 )
     {
       zok = 1;
     }
